@@ -1,0 +1,156 @@
+
+function isTest(){
+
+
+var number = 0;
+var maxNumber = $(".test-item").length;
+var $element = $(".test-item").find("input, select, textarea");
+// var btnPrev = $(".test-prev");
+var btnNext = $('.test-next');
+var isValid;
+var dataBlock;
+var activeSlede = [];
+for(var i = 0; i< maxNumber; i++){
+  activeSlede[i] = false;
+}
+
+$element.on('change input', function (e) {
+  
+
+  if($(this).hasClass('clothes-multi')){
+    var value = $(this).val();
+  }else{
+    var value = $(this).val().trim();
+  }
+
+  isValid = value !== "";
+  btnActive(!isValid);
+
+});;
+
+
+function btnActive(isValid) {
+  if(number === 0){
+    btnNext.prop('disabled', isValid);
+  }else{
+    if(activeSlede[number] === true || isValid === false){
+      btnNext.prop('disabled', false);
+    }else{
+      btnNext.prop('disabled', true);
+    }
+    
+  }
+
+}
+// sidebar
+
+  var $barLevel = 100 / maxNumber;
+  var $barWidth = $barLevel;
+  // money
+  var slideMoney = Math.floor(2000 / maxNumber);
+  var sumMoney = slideMoney;
+
+  function progress(){
+    $(".progress-bar__line").css({"width": $barWidth + '%'});
+
+    moneyAnim( ".progress-bar__line-num", Math.floor($barWidth),"%" )
+
+  }
+  progress();
+
+
+  function moneyAnim( selector, new_money, simbol ){
+    var numb_start = 0; // Получаем начальное число
+  
+    $({numberValue: numb_start}).animate({numberValue: new_money}, {
+    
+      duration: 560, // Скорость анимации, где 500 = 0,5 одной секунды, то есть 500 миллисекунд 
+      easing: "linear",
+      
+      step: function(val) {
+      
+        $(selector).text(Math.ceil(val) + simbol); // Блок, где необходимо сделать анимацию
+        
+      }
+      
+    });
+
+  }
+  
+// btn
+
+function btnClick() {
+
+  btnNext.on('click', function(event) {
+    event.preventDefault();
+    activeSlede[number] = true;
+    ++number;
+    $('.test-item').hide();
+    $('.test-item').eq(number).fadeIn(1000);
+    btnActive(true);
+
+    console.log(isValid);
+    if(number === maxNumber - 1){
+      $('.test__btn-block').hide();
+    }
+
+
+    $barWidth += $barLevel;
+    progress();
+
+  });
+
+}
+btnClick();
+
+}
+// function animateTop (eq){
+//   var elem = $('.progress-bar');
+//   var top = elem.offset().top - 15;
+//   $('body,html').animate({scrollTop: top}, 400);
+// }
+
+
+
+
+// 
+
+
+
+function ajaxfunct(selector){
+  $(selector).not('.tarif form').submit(function(event) {
+
+      event.preventDefault();
+
+      var action = "assets/mailer/smart.php";
+      var msg = $(this).serialize();
+      var formThis = $(this);
+      formThis.find('.btn').attr({"disabled":"true"});
+      $.ajax({
+          type: "POST",
+          url: action,
+          data: msg,
+          success: function(data) {
+          if(formThis.find('input[type="hidden"]').val() === "test"){
+                $(".overlay").fadeOut();
+                $("#modal-thanks").fadeIn();
+                $('html').addClass('stop');
+              }else{
+                $(".overlay").fadeOut();
+                $('html').addClass('stop');
+                $("#modal-thanks").fadeIn();
+              }
+
+              $('form').trigger('reset');
+
+              formThis.find('.btn').removeAttr("disabled");
+          },
+          error: function(xhr, str) {
+
+              alert('Произошла ошибка, попробуйте немного позже');
+          }
+      });
+  });
+}
+
+ajaxfunct('form');
